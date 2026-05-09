@@ -1,6 +1,6 @@
 import { createClient } from '../supabase/client';
 
-export async function updateData(title: string, description: string, id: string) {
+export async function updateData(title: string, description: string, id: number) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('tasks')

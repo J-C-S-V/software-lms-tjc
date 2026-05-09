@@ -12,6 +12,16 @@ export default function Home() {
   const [title, setTile] = useState('');
   const [description, setDescription] = useState('');
 
+  const refreshTasks = () => {
+    fetchTasks()
+      .then((data) => setTasks(data))
+      .catch((error) => console.error('Error fetching tasks:', error));
+  };
+
+  useEffect(() => {
+    refreshTasks();
+  }, []);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     await insertData(title, description);
@@ -20,23 +30,13 @@ export default function Home() {
     refreshTasks();
   };
 
-  const refreshTasks = () => {
-    fetchTasks()
-      .then((data) => setTasks(data))
-      .catch((error) => console.error('Error fetching tasks:', error));
+  const handleUpdate = (id: any) => {
+    updateData(title, description, id);
   };
 
   const handleDelete = async (id: number) => {
     await deleteData(id);
     refreshTasks();
-  };
-
-  useEffect(() => {
-    refreshTasks();
-  }, []);
-
-  const handleUpdate = (id: any) => {
-    updateData(title, description, id);
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
