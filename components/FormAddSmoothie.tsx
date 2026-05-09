@@ -1,23 +1,35 @@
 'use client';
 import { createClient } from '@/lib/supabase/client';
-// import { useState } from 'react';
+import { useEffect } from 'react';
 
 export function FormAddSmoothie() {
-  // const [title, setTitle] = useState('');
-  const handleSubmit = async (event: React.ChangeEvent<HTMLFormElement>) => {
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) supabase.auth.signInAnonymously();
+    });
+  }, []);
+
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
-    const supabase = createClient();
+
     const { data, error } = await supabase
-      .from('smoothies')
-      .insert([{ title: 'Mile', method: 'nose', rating: 10 }]);
+      .from('tasks')
+      .insert([{ title: 'Eat', description: 'Eat at 8am' }])
+      .select();
+
+    if (error) console.error('Insert error:', error.message);
+    if (data) console.log('Inserted data:', data);
   };
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="name">Name</label>
-        <input className="border-2" type="text" name="name" id="name" />
-        <button className="cursor-pointer" type="submit">
+      <form className="flex justify-center" onSubmit={handleSubmit}>
+        <button
+          className="cursor-pointer border-2 hover:bg-black hover:text-white py-2 px-4 mt-10 active:bg-gray-800"
+          type="submit"
+        >
           Submit
         </button>
       </form>
