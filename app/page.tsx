@@ -1,33 +1,38 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { fetchSmoothies } from '@/lib/api/fetchData';
-import { type Smoothies } from '@/types/smoothies';
-import { FormAddSmoothie } from '@/components/FormAddSmoothie';
+import { fetchTasks } from '@/lib/api/fetchData';
+import { type Tasks } from '@/types/tasks';
+import { FormAddTasks } from '@/components/FormAddTasks';
 
 export default function Home() {
-  const [smoothies, setSmoothies] = useState<Smoothies[] | null>([]);
+  const [tasks, setTasks] = useState<Tasks[] | null>([]);
+
+  const refreshTasks = () => {
+    fetchTasks()
+      .then((data) => setTasks(data))
+      .catch((error) => console.error('Error fetching tasks:', error));
+  };
 
   useEffect(() => {
-    fetchSmoothies()
-      .then((data) => setSmoothies(data))
-      .catch((error) => {
-        console.error('Error fetching smoothies:', error);
-      });
+    refreshTasks();
   }, []);
 
   return (
     <div className="h-full">
       <main>
-        <div className="flex gap-4 flex-wrap justify-center items-center">
-          {smoothies?.map((item) => {
+        <div className="flex flex-col flex-wrap justify-center items-center">
+          {tasks?.map((item) => {
             return (
-              <div key={item.id} className="p-4 border-2 rounded-2xl w-xs text-center">
-                {item.title}
+              <div key={item.id}>
+                <div className="p-4 border-2 rounded-2xl w-xs text-center">{item.title}</div>
+                <div className="p-4 border-2 rounded-2xl w-xs text-center mb-10">
+                  {item.description}
+                </div>
               </div>
             );
           })}
         </div>
-        <FormAddSmoothie />
+        <FormAddTasks onTaskAdded={refreshTasks} />
       </main>
     </div>
   );
