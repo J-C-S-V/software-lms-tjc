@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { fetchTasks } from '@/lib/api/fetchData';
 import { type Tasks } from '@/types/tasks';
 import { FormAddTasks } from '@/components/FormAddTasks';
+import { deleteData } from '@/lib/api/deleteData';
 
 export default function Home() {
   const [tasks, setTasks] = useState<Tasks[] | null>([]);
@@ -13,6 +14,11 @@ export default function Home() {
       .catch((error) => console.error('Error fetching tasks:', error));
   };
 
+  const handleDelete = async (id: string) => {
+    await deleteData(id);
+    refreshTasks();
+  };
+
   useEffect(() => {
     refreshTasks();
   }, []);
@@ -20,14 +26,18 @@ export default function Home() {
   return (
     <div className="h-full">
       <main>
-        <div className="flex flex-col flex-wrap justify-center items-center">
+        <div className="flex flex-wrap justify-center items-top gap-4 mt-10">
           {tasks?.map((item) => {
             return (
-              <div key={item.id}>
+              <div key={item.id} className="mb-10">
                 <div className="p-4 border-2 rounded-2xl w-xs text-center">{item.title}</div>
-                <div className="p-4 border-2 rounded-2xl w-xs text-center mb-10">
-                  {item.description}
-                </div>
+                <div className="p-4 border-2 rounded-2xl w-xs text-center">{item.description}</div>
+                <button
+                  onClick={() => handleDelete(item.id)}
+                  className="py-2 px-4 text-white rounded-sm bg-red-700 hover:cursor-pointer hover:bg-red-600"
+                >
+                  Delete
+                </button>
               </div>
             );
           })}
