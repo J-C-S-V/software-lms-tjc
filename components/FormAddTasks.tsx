@@ -1,12 +1,20 @@
 'use client';
 import { createClient } from '@/lib/supabase/client';
 import { useEffect, useState } from 'react';
-import { insertData } from '../lib/api/insertData';
 
-export function FormAddTasks({ onTaskAdded }: { onTaskAdded: () => void }) {
-  const [title, setTile] = useState('');
-  const [description, setDescription] = useState('');
-
+export function FormAddTasks({
+  onTitleChange,
+  onDescriptionChange,
+  onSubmit,
+  title,
+  description
+}: {
+  onTitleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onDescriptionChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onSubmit: (e: any) => void;
+  title: string;
+  description: string;
+}) {
   const supabase = createClient();
 
   useEffect(() => {
@@ -15,30 +23,14 @@ export function FormAddTasks({ onTaskAdded }: { onTaskAdded: () => void }) {
     });
   }, []);
 
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    await insertData(title, description);
-    setTile('');
-    setDescription('');
-    onTaskAdded();
-  };
-
-  const handleTitle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTile(e.target.value);
-  };
-
-  const handleDescription = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDescription(e.target.value);
-  };
-
   return (
     <>
-      <form className="flex flex-col item-start gap-3 max-w-xl mx-auto" onSubmit={handleSubmit}>
+      <form className="flex flex-col item-start gap-3 max-w-xl mx-auto" onSubmit={onSubmit}>
         <input
           placeholder="Add a task"
           className="border-2 p-2 rounded-sm"
           value={title}
-          onChange={handleTitle}
+          onChange={onTitleChange}
           type="text"
           name="title"
           id="title"
@@ -46,7 +38,7 @@ export function FormAddTasks({ onTaskAdded }: { onTaskAdded: () => void }) {
         <textarea
           className="border-2 p-2 rounded-sm"
           value={description}
-          onChange={handleDescription}
+          onChange={onDescriptionChange}
           id="description"
           name="description"
           rows={5}

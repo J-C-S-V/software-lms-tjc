@@ -1,6 +1,6 @@
 import { createClient } from '../supabase/client';
 
-export async function deleteData(id: string) {
+export async function deleteData(id: number) {
   const supabase = createClient();
   const { error } = await supabase.from('tasks').delete().eq('id', id);
 
