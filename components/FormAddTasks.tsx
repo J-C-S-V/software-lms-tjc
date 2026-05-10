@@ -28,12 +28,13 @@ export function FormAddTasks({
       <form className="flex flex-col item-start gap-3 max-w-xl mx-auto" onSubmit={onSubmit}>
         <input
           placeholder="Add a task"
-          className="border-2 p-2 rounded-sm"
+          className="border-2 p-2 rounded-sm cursor-auto"
           value={title}
           onChange={onTitleChange}
           type="text"
           name="title"
           id="title"
+          readOnly
         />
         <textarea
           className="border-2 p-2 rounded-sm"
