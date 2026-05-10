@@ -108,8 +108,18 @@ export default function Home() {
                 </button>
                 {isEditingThis ? (
                   <>
-                    <button onClick={() => handleSave(item.id, item.description)}>Save</button>
-                    <button onClick={handleCancel}>Cancel</button>
+                    <button
+                      className="bg-green-300 py-2 px-4 m-4 cursor-pointer hover:bg-green-200 active:bg-green-100"
+                      onClick={() => handleSave(item.id, item.description)}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="bg-gray-300 py-2 px-4 m-4 cursor-pointer hover:bg-gray-200 active:bg-gray-100"
+                      onClick={handleCancel}
+                    >
+                      Cancel
+                    </button>
                   </>
                 ) : (
                   <button
