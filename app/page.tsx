@@ -1,146 +1,106 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
-import { updateData } from '@/lib/api/updateData';
-import { deleteData } from '@/lib/api/deleteData';
-import { fetchTasks } from '@/lib/api/fetchData';
-import { insertData } from '@/lib/api/insertData';
-import { FormAddTasks } from '@/components/FormAddTasks';
-import { type Tasks } from '@/types/tasks';
+import { useState, useEffect } from 'react';
+import { type User } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 
 export default function Home() {
-  const [tasks, setTasks] = useState<Tasks[] | null>([]);
-  const [title, setTile] = useState('');
-  const [description, setDescription] = useState('');
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [originalTitle, setOriginalTitle] = useState('');
-  const spanRef = useRef<HTMLSpanElement | null>(null);
+  const supabase = createClient();
 
-  const refreshTasks = () => {
-    fetchTasks()
-      .then((data) => setTasks(data))
-      .catch((error) => console.error('Error fetching tasks:', error));
-  };
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+
+  async function checkUser() {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+    setUser(user);
+    setLoading(false);
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }
+
+  // 2. Auth handlers.
+  async function handleSignUp() {
+    setMessage('');
+    const { error } = await supabase.auth.signUp({
+      email,
+      password
+    });
+    setMessage(error ? `Error: ${error.message}` : 'Check your email for the login link!');
+  }
+
+  async function handleSignIn() {
+    setMessage('');
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+    setMessage(error ? `Error: ${error.message}` : 'Signed in successfully!');
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+  }
 
   useEffect(() => {
-    refreshTasks();
+    checkUser();
   }, []);
 
-  // focus the span as soon as it becomes editable
-  useEffect(() => {
-    if (editingId !== null && spanRef.current) {
-      spanRef.current.focus();
-    }
-  }, [editingId]);
+  // 3. Render.
+  if (loading) return <main className="p-8">Loading...</main>;
 
-  const handleSubmit = async (e: any) => {
-    e.preventDefault();
-    await insertData(title, description);
-    setTile('');
-    setDescription('');
-    refreshTasks();
-  };
-
-  const handleUpdate = (id: number, currentTitle: string) => {
-    setEditingId(id);
-    setOriginalTitle(currentTitle); // remember original so cancel can restore it
-  };
-
-  const handleDelete = async (id: number) => {
-    await deleteData(id);
-    refreshTasks();
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTile(e.target.value);
-  };
-
-  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDescription(e.target.value);
-  };
-
-  const handleSave = async (id: number, currentDescription: string) => {
-    const newTitle = spanRef.current?.innerText || '';
-    await updateData(newTitle, currentDescription, id);
-    setEditingId(null);
-    refreshTasks();
-  };
-
-  const handleCancel = () => {
-    if (spanRef.current) {
-      spanRef.current.innerText = originalTitle; // restore original
-    }
-    setEditingId(null);
-  };
-
-  const handleKey = (e: any, id: number, currentDescription: string) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSave(id, currentDescription);
-    }
-    if (e.key === 'Escape') handleCancel();
-  };
+  if (user) {
+    return (
+      <main className="p-8 max-w-md space-y-4">
+        <h1 className="text-2xl font-bold">Logged in</h1>
+        <p>
+          <strong>Email:</strong> {user.email}
+        </p>
+        <p>
+          <strong>User ID:</strong> {user.id}
+        </p>
+        <button onClick={handleSignOut} className="px-4 py-2 bg-red-600 text-white rounded">
+          Log out
+        </button>
+      </main>
+    );
+  }
 
   return (
-    <div className="h-full">
-      <main>
-        <div className="flex flex-wrap justify-center items-top gap-4 mt-10">
-          {tasks?.map((item) => {
-            const isEditingThis = editingId === item.id;
-            return (
-              <div key={item.id} className="mb-10">
-                <span
-                  ref={isEditingThis ? spanRef : null}
-                  onKeyDown={(e) => handleKey(e, item.id, item.description)}
-                  suppressContentEditableWarning
-                  contentEditable={isEditingThis}
-                  className="p-4 border-2 rounded-2xl w-xs text-center"
-                >
-                  {item.title}
-                </span>
-                <span className="p-4 border-2 rounded-2xl w-xs text-center">
-                  {item.description}
-                </span>
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="py-2 px-4 text-white rounded-sm bg-red-700 hover:cursor-pointer hover:bg-red-600"
-                >
-                  Delete
-                </button>
-                {isEditingThis ? (
-                  <>
-                    <button
-                      className="bg-green-300 py-2 px-4 m-4 cursor-pointer hover:bg-green-200 active:bg-green-100"
-                      onClick={() => handleSave(item.id, item.description)}
-                    >
-                      Save
-                    </button>
-                    <button
-                      className="bg-gray-300 py-2 px-4 m-4 cursor-pointer hover:bg-gray-200 active:bg-gray-100"
-                      onClick={handleCancel}
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={() => handleUpdate(item.id, item.title)}
-                    className="py-2 px-4 text-white rounded-sm bg-green-700 hover:cursor-pointer hover:bg-green-600"
-                  >
-                    Update
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
-        <FormAddTasks
-          onTitleChange={handleTitleChange}
-          onDescriptionChange={handleDescriptionChange}
-          onSubmit={handleSubmit}
-          title={title}
-          description={description}
-        />
-      </main>
-    </div>
+    <main className="p-8 max-w-md space-y-4">
+      <h1 className="text-2xl font-bold">Auth demo</h1>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="border w-full px-3 py-2 rounded"
+      />
+      <input
+        type="password"
+        placeholder="Password (min 6 chars)"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="border w-full px-3 py-2 rounded"
+      />
+      <div className="flex gap-2">
+        <button onClick={handleSignUp} className="px-4 py-2 bg-blue-600 text-white rounded">
+          Sign up
+        </button>
+        <button onClick={handleSignIn} className="px-4 py-2 bg-green-600 text-white rounded">
+          Log in
+        </button>
+      </div>
+      {message && <p className="text-sm">{message}</p>}
+    </main>
   );
 }
