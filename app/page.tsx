@@ -1,59 +1,48 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { type User } from '@supabase/supabase-js';
+
+import { useEffect, useState } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 
 export default function Home() {
   const supabase = createClient();
 
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
 
-  async function checkUser() {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-    setUser(user);
-    setLoading(false);
+  // 1. On mount, check if a session already exists, and subscribe to changes.
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setLoading(false);
+    });
 
     const {
       data: { subscription }
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
-    });
+    } = supabase.auth.onAuthStateChange((_event, session) => setUser(session?.user ?? null));
 
     return () => subscription.unsubscribe();
-  }
+  }, []);
 
   // 2. Auth handlers.
   async function handleSignUp() {
     setMessage('');
-    const { error } = await supabase.auth.signUp({
-      email,
-      password
-    });
-    setMessage(error ? `Error: ${error.message}` : 'Check your email for the login link!');
+    const { error } = await supabase.auth.signUp({ email, password });
+    setMessage(error ? `Error: ${error.message}` : 'Signed up and logged in!');
   }
 
-  async function handleSignIn() {
+  async function handleLogin() {
     setMessage('');
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
-    setMessage(error ? `Error: ${error.message}` : 'Signed in successfully!');
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) setMessage(`Error: ${error.message}`);
   }
 
-  async function handleSignOut() {
+  async function handleLogout() {
     await supabase.auth.signOut();
   }
-
-  useEffect(() => {
-    checkUser();
-  }, []);
 
   // 3. Render.
   if (loading) return <main className="p-8">Loading...</main>;
@@ -68,7 +57,7 @@ export default function Home() {
         <p>
           <strong>User ID:</strong> {user.id}
         </p>
-        <button onClick={handleSignOut} className="px-4 py-2 bg-red-600 text-white rounded">
+        <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded">
           Log out
         </button>
       </main>
@@ -96,7 +85,7 @@ export default function Home() {
         <button onClick={handleSignUp} className="px-4 py-2 bg-blue-600 text-white rounded">
           Sign up
         </button>
-        <button onClick={handleSignIn} className="px-4 py-2 bg-green-600 text-white rounded">
+        <button onClick={handleLogin} className="px-4 py-2 bg-green-600 text-white rounded">
           Log in
         </button>
       </div>
