@@ -1,6 +1,5 @@
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
-import { AuthForm } from '@/app/auth-form';
-import { LogoutButton } from '@/app/logout-button';
 
 export default async function Home() {
   const supabase = await createClient();
@@ -8,25 +7,23 @@ export default async function Home() {
     data: { user }
   } = await supabase.auth.getUser();
 
-  if (user) {
-    return (
-      <main className="p-8 max-w-md space-y-4">
-        <h1 className="text-2xl font-bold">Logged in</h1>
-        <p>
-          <strong>Email:</strong> {user.email}
-        </p>
-        <p>
-          <strong>User ID:</strong> {user.id}
-        </p>
-        <LogoutButton />
-      </main>
-    );
-  }
-
   return (
-    <main className="p-8 max-w-md space-y-4">
-      <h1 className="text-2xl font-bold">Auth demo</h1>
-      <AuthForm />
+    <main className="min-h-screen flex flex-col items-center justify-center gap-6 p-8">
+      <h1 className="text-3xl font-bold">Auth demo</h1>
+      {user ? (
+        <Link href="/dashboard" className="px-4 py-2 bg-blue-600 text-white rounded">
+          Go to dashboard
+        </Link>
+      ) : (
+        <div className="flex gap-3">
+          <Link href="/login" className="px-4 py-2 bg-blue-600 text-white rounded">
+            Log in
+          </Link>
+          <Link href="/signup" className="px-4 py-2 border rounded">
+            Sign up
+          </Link>
+        </div>
+      )}
     </main>
   );
 }

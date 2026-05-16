@@ -9,11 +9,12 @@ export function LogoutButton() {
 
   async function handleLogout() {
     await supabase.auth.signOut();
+    router.push('/');
     router.refresh();
   }
 
   return (
-    <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white rounded">
+    <button onClick={handleLogout} className="px-3 py-1 bg-red-600 text-white rounded text-sm">
       Log out
     </button>
   );

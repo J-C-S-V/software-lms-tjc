@@ -23,9 +23,31 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // IMPORTANT: do not put any code between createServerClient and getUser().
-  // getUser() triggers the token refresh; spacing them out causes race conditions.
-  await supabase.auth.getUser();
+  // IMPORTANT: keep getUser() right after createServerClient (no code between).
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
+
+  const { pathname } = request.nextUrl;
+
+  const isAuthRoute = pathname === '/login' || pathname === '/signup';
+  const isProtectedRoute = pathname.startsWith('/dashboard');
+  // We treat /, /auth/* as public.
+
+  // Unauthenticated user trying to access protected route → bounce to /login
+  if (!user && isProtectedRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    url.searchParams.set('next', pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Authenticated user trying to access auth pages → bounce to /dashboard
+  if (user && isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/dashboard';
+    return NextResponse.redirect(url);
+  }
 
   return supabaseResponse;
 }
