@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import { UpdateProfileForm } from './update-profile-form';
+import { UpdateProfileForm } from '@/features/profile/components/update-profile-form';
 import Dashboard from './dashboard';
 
 export default async function DashboardPage() {

@@ -1,7 +1,7 @@
 'use client';
 
 import { useActionState } from 'react';
-import { updateProfile } from './actions';
+import { updateProfile } from '../actions';
 
 export function UpdateProfileForm({ currentDisplayName }: { currentDisplayName: string }) {
   const [state, formAction, isPending] = useActionState(updateProfile, null);

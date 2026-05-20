@@ -1,4 +1,4 @@
-import { signOut } from './(auth)/actions';
+import { signOut } from '../actions';
 
 export function LogoutButton() {
   return (
