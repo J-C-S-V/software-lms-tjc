@@ -42,7 +42,7 @@ export async function signup(_prevState: ActionState, formData: FormData): Promi
   }
 
   revalidatePath('/', 'layout');
-  redirect('/dashboard');
+  redirect('/check-email');
 }
 
 export async function signOut() {
