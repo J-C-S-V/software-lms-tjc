@@ -2,11 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import { UpdateProfileForm } from './update-profile-form';
 import Dashboard from './dashboard';
 
-type Profile = {
-  display_name: string | null;
-  created_at: string;
-};
-
 export default async function DashboardPage() {
   const supabase = await createClient();
   const {
@@ -17,7 +12,7 @@ export default async function DashboardPage() {
     .from('profiles')
     .select('display_name, created_at')
     .eq('id', user!.id)
-    .single<Profile>();
+    .single();
 
   return (
     <div className="w-full space-y-6">
