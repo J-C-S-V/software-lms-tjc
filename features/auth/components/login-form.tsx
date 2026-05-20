@@ -4,12 +4,19 @@ import { useActionState } from 'react';
 import Link from 'next/link';
 import { login } from '../actions';
 
-export function LoginForm({ next }: { next: string }) {
+export function LoginForm({ next, initialError }: { next: string; initialError: string | null }) {
   const [state, formAction, isPending] = useActionState(login, null);
 
   return (
     <form action={formAction} className="space-y-3">
       <h1 className="text-2xl font-bold">Log in</h1>
+
+      {initialError && (
+        <div className="p-3 border border-red-200 bg-red-50 rounded text-sm text-red-700">
+          {initialError}
+        </div>
+      )}
+
       <input type="hidden" name="next" value={next} />
       <input
         name="email"
