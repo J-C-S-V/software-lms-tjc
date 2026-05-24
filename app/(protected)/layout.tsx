@@ -17,11 +17,14 @@ export default async function ProtectedLayout({ children }: { children: React.Re
     <div className="min-h-screen">
       <nav className="border-b px-6 py-3 flex items-center justify-between">
         <Link href="/dashboard" className="font-semibold">
-          Auth demo
+          Code Origin
         </Link>
         <div className="flex items-center gap-4 text-sm">
           <span className="text-gray-600">{user.email}</span>
           <LogoutButton />
+          <Link href="/profile" className="text-blue-600 rounded-md px-2 py-1 hover:bg-gray-100">
+            Profile
+          </Link>
         </div>
       </nav>
       <main className="p-6">{children}</main>
