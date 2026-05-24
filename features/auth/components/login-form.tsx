@@ -40,10 +40,15 @@ export function LoginForm({ next, initialError }: { next: string; initialError: 
         {isPending ? 'Logging in...' : 'Log in'}
       </button>
       {state?.error && <p className="text-sm text-red-600">{state.error}</p>}
-      <p className="text-sm">
+      <p className="text-sm text-center">
         No account?{' '}
         <Link href="/signup" className="text-blue-600">
           Sign up
+        </Link>
+      </p>
+      <p className="text-sm text-center">
+        <Link href="/forgot-password" className="text-blue-600">
+          Forgot password?
         </Link>
       </p>
     </form>

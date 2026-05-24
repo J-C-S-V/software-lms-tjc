@@ -27,13 +27,13 @@ export function OAuthButtons({ next }: { next: string }) {
       >
         Continue with Google
       </button>
-      <button
+      {/* <button
         type="button"
         onClick={() => signInWith('github')}
         className="w-full px-4 py-2 border rounded text-sm hover:bg-gray-50"
       >
         Continue with GitHub
-      </button>
+      </button> */}
     </div>
   );
 }
