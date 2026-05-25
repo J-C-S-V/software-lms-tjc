@@ -11,7 +11,7 @@ export default async function Home() {
     <main className="min-h-screen flex flex-col items-center justify-center gap-6 p-8">
       <h1 className="text-3xl font-bold">Auth demo</h1>
       {user ? (
-        <Link href="/dashboard" className="px-4 py-2 bg-blue-600 text-white rounded">
+        <Link href="/learn" className="px-4 py-2 bg-blue-600 text-white rounded">
           Go to dashboard
         </Link>
       ) : (

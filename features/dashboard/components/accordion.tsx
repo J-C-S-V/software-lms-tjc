@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useRef, useEffect, useId, ReactNode } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-/**
- * Shape of each section in the accordion.
- * - `label` and `items` are required.
- * - `icon` is optional – pass any React node (e.g. your <IconHTML />).
- * - `id` must be unique; if omitted, React's `useId()` generates one.
- */
+export interface AccordionItem {
+  label: string;
+  href: string;
+}
+
 export interface AccordionSection {
   id?: string;
   label: string;
   icon?: ReactNode;
-  items: string[];
+  items: AccordionItem[];
 }
 
 interface AccordionProps {
@@ -21,9 +22,6 @@ interface AccordionProps {
   type?: 'single' | 'multiple';
 }
 
-// ------------------------------------------------------------------
-// Inline Chevron Icon (no external dependencies)
-// ------------------------------------------------------------------
 function Chevron({ className }: { className?: string }) {
   return (
     <svg
@@ -43,33 +41,30 @@ function Chevron({ className }: { className?: string }) {
   );
 }
 
-// ------------------------------------------------------------------
-// Individual Section
-// ------------------------------------------------------------------
-function AccordionItem({
+function AccordionSectionItem({
   section,
   isOpen,
   onToggle,
   triggerId,
-  panelId
+  panelId,
+  activeHref
 }: {
   section: AccordionSection;
   isOpen: boolean;
   onToggle: () => void;
   triggerId: string;
   panelId: string;
+  activeHref: string;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [contentHeight, setContentHeight] = useState(0);
 
-  // Sync height when open state changes
   useEffect(() => {
     if (contentRef.current) {
       setContentHeight(isOpen ? contentRef.current.scrollHeight : 0);
     }
   }, [isOpen]);
 
-  // Re-measure if content ever changes (e.g. dynamic items)
   useEffect(() => {
     if (!contentRef.current) return;
     const observer = new ResizeObserver((entries) => {
@@ -83,7 +78,6 @@ function AccordionItem({
 
   return (
     <div className="overflow-hidden rounded-xl border border-zinc-800">
-      {/* Trigger Button */}
       <button
         id={triggerId}
         type="button"
@@ -96,7 +90,6 @@ function AccordionItem({
             : 'text-zinc-400 hover:bg-zinc-800 hover:text-white border-b border-transparent'
         }`}
       >
-        {/* Section icon */}
         {section.icon && <span className="text-lg">{section.icon}</span>}
         <span>{section.label}</span>
         <Chevron
@@ -106,7 +99,6 @@ function AccordionItem({
         />
       </button>
 
-      {/* Collapsible Panel */}
       <div
         id={panelId}
         role="region"
@@ -117,19 +109,26 @@ function AccordionItem({
           transition: 'height 0.3s ease'
         }}
       >
-        {/* Inner wrapper (padding lives here) */}
         <div ref={contentRef}>
           <ul className="px-3 py-2 space-y-1">
-            {section.items.map((item, idx) => (
-              <li
-                key={idx}
-                className="text-sm text-zinc-400 hover:text-white cursor-pointer rounded-md px-2 py-1 transition-colors hover:bg-zinc-800/50"
-              >
-                <a href="#" className="block">
-                  {item}
-                </a>
-              </li>
-            ))}
+            {section.items.map((item) => {
+              const isActive = item.href === activeHref;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`block text-sm rounded-md px-2 py-1 transition-colors ${
+                      isActive
+                        ? 'bg-violet-600/30 text-white border border-violet-500/30'
+                        : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -137,12 +136,34 @@ function AccordionItem({
   );
 }
 
-// ------------------------------------------------------------------
-// Main Accordion Component
-// ------------------------------------------------------------------
 export function Accordion({ sections, type = 'single' }: AccordionProps) {
   const idPrefix = useId();
-  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  const pathname = usePathname();
+
+  const sectionContainingPath = sections.find((s) =>
+    s.items.some((i) => i.href === pathname)
+  );
+  const activeSectionId = sectionContainingPath
+    ? (sectionContainingPath.id ?? `${idPrefix}-${sectionContainingPath.label}`)
+    : null;
+
+  const [openIds, setOpenIds] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    if (activeSectionId) initial.add(activeSectionId);
+    return initial;
+  });
+
+  // Open the section containing the active route whenever the route changes.
+  // Uses the "store info from previous render" pattern to avoid setState-in-effect.
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (lastPathname !== pathname) {
+    setLastPathname(pathname);
+    if (activeSectionId && !openIds.has(activeSectionId)) {
+      const next = new Set(type === 'single' ? [] : openIds);
+      next.add(activeSectionId);
+      setOpenIds(next);
+    }
+  }
 
   const toggle = (sectionId: string) => {
     setOpenIds((prev) => {
@@ -166,13 +187,14 @@ export function Accordion({ sections, type = 'single' }: AccordionProps) {
         const panelId = `panel-${sectionId}`;
 
         return (
-          <AccordionItem
+          <AccordionSectionItem
             key={sectionId}
             section={section}
             isOpen={isOpen}
             onToggle={() => toggle(sectionId)}
             triggerId={triggerId}
             panelId={panelId}
+            activeHref={pathname}
           />
         );
       })}

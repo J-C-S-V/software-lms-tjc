@@ -14,9 +14,9 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="min-h-screen">
-      <nav className="border-b px-6 py-3 flex items-center justify-between">
-        <Link href="/dashboard" className="font-semibold">
+    <div className="h-screen flex flex-col">
+      <nav className="border-b px-6 py-3 flex items-center justify-between shrink-0">
+        <Link href="/learn" className="font-semibold">
           Code Origin
         </Link>
         <div className="flex items-center gap-4 text-sm">
@@ -27,7 +27,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
           </Link>
         </div>
       </nav>
-      <main className="p-6">{children}</main>
+      <main className="flex-1 min-h-0">{children}</main>
     </div>
   );
 }

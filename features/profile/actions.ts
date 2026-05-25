@@ -28,6 +28,6 @@ export async function updateProfile(_prev: State, formData: FormData): Promise<S
 
   if (error) return { error: error.message };
 
-  revalidatePath('/dashboard');
+  revalidatePath('/learn');
   return { success: true };
 }

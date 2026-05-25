@@ -10,7 +10,7 @@ type MessageState = { error: string } | { success: true } | null;
 export async function login(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const next = (formData.get('next') as string) || '/dashboard';
+  const next = (formData.get('next') as string) || '/learn';
 
   if (!email || !password) {
     return { error: 'Email and password are required.' };
@@ -90,5 +90,5 @@ export async function updatePassword(_prev: ActionState, formData: FormData): Pr
   if (error) return { error: error.message };
 
   revalidatePath('/', 'layout');
-  redirect('/dashboard');
+  redirect('/learn');
 }

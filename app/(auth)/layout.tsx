@@ -8,7 +8,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
   } = await supabase.auth.getUser();
 
   if (user) {
-    redirect('/dashboard');
+    redirect('/learn');
   }
 
   return (

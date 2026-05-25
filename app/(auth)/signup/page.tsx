@@ -13,7 +13,7 @@ export default function SignupPage() {
           <span className="bg-white px-2 text-gray-500">OR</span>
         </div>
       </div>
-      <OAuthButtons next="/dashboard" />
+      <OAuthButtons next="/learn" />
     </div>
   );
 }

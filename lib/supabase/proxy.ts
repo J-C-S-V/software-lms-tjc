@@ -31,7 +31,10 @@ export async function updateSession(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isAuthRoute = pathname === '/login' || pathname === '/signup';
-  const isProtectedRoute = pathname.startsWith('/dashboard');
+  const isProtectedRoute =
+    pathname.startsWith('/learn') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/dashboard');
   // We treat /, /auth/* as public.
 
   // Unauthenticated user trying to access protected route → bounce to /login
@@ -42,10 +45,10 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Authenticated user trying to access auth pages → bounce to /dashboard
+  // Authenticated user trying to access auth pages → bounce to /learn
   if (user && isAuthRoute) {
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+    url.pathname = '/learn';
     return NextResponse.redirect(url);
   }
 

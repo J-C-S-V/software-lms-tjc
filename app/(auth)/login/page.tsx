@@ -18,7 +18,7 @@ export default async function LoginPage({
   searchParams: Promise<{ next?: string; error?: string }>;
 }) {
   const { next, error } = await searchParams;
-  const resolvedNext = next ?? '/dashboard';
+  const resolvedNext = next ?? '/learn';
 
   return (
     <div className="space-y-4">
