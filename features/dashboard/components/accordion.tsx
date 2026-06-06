@@ -110,7 +110,7 @@ function AccordionSectionItem({
         }}
       >
         <div ref={contentRef}>
-          <ul className="px-3 py-2 space-y-1">
+          <ul>
             {section.items.map((item) => {
               const isActive = item.href === activeHref;
               return (
@@ -118,7 +118,7 @@ function AccordionSectionItem({
                   <Link
                     href={item.href}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`block text-sm rounded-md px-2 py-1 transition-colors ${
+                    className={`block text-sm p-4 transition-colors border-t border-zinc-800 ${
                       isActive
                         ? 'bg-violet-600/30 text-white border border-violet-500/30'
                         : 'text-zinc-400 hover:text-white hover:bg-zinc-800/50'
@@ -140,9 +140,7 @@ export function Accordion({ sections, type = 'single' }: AccordionProps) {
   const idPrefix = useId();
   const pathname = usePathname();
 
-  const sectionContainingPath = sections.find((s) =>
-    s.items.some((i) => i.href === pathname)
-  );
+  const sectionContainingPath = sections.find((s) => s.items.some((i) => i.href === pathname));
   const activeSectionId = sectionContainingPath
     ? (sectionContainingPath.id ?? `${idPrefix}-${sectionContainingPath.label}`)
     : null;

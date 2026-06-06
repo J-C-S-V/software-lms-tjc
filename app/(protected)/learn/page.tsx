@@ -21,12 +21,12 @@ export default async function LearnDashboardPage() {
     <div className="p-4 sm:p-6 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Welcome back, {user!.email} 👋</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">Welcome {user!.email} 👋</h1>
         </div>
         <div className="flex items-center gap-2 text-sm text-zinc-500">
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-zinc-200 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Spring ’26 — In Session
+            Spring '26 — In Session
           </span>
         </div>
       </div>
@@ -53,11 +53,7 @@ export default async function LearnDashboardPage() {
       </div>
 
       <div className="mx-auto max-w-md">
-        <LoginStreak
-          currentStreak={currentStreak}
-          days={days}
-          completedToday={completedToday}
-        />
+        <LoginStreak currentStreak={currentStreak} days={days} completedToday={completedToday} />
       </div>
     </div>
   );
